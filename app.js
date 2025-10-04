@@ -16,7 +16,7 @@ app.post('/livros', (req, res) => {
     try {
         const { titulo, autor, ano_publicacao, estoque } = req.body
 
-        if ( titulo == "" || titulo == undefined || autor == "" || autor == undefined || isNaN(estoque) || estoque == undefined || ano_publicacao == undefined || isNaN(ano_publicacao)) {
+        if (titulo == "" || titulo == undefined || autor == "" || autor == undefined || isNaN(estoque) || estoque == undefined || ano_publicacao == undefined || isNaN(ano_publicacao)) {
             return res.status(400).json({
                 message: "Campos obrigatorios nao preenchidos"
             })
@@ -26,10 +26,10 @@ app.post('/livros', (req, res) => {
         let livros = JSON.parse(data)
 
         const novoLivro = {
-            id: livros.length +1,
+            id: livros.length + 1,
             titulo,
             autor,
-            ano_publicacao, 
+            ano_publicacao,
             estoque
         }
 
@@ -59,7 +59,37 @@ app.get("/livros", (req, res) => {
             livros: livros
         })
     } catch (error) {
-        
+
+    }
+})
+
+app.get("/livro/:titulo", (req, res) => {
+    try {
+        const tituloParam = req.params.titulo.toLocaleLowerCase()
+
+        const data = fs.readFileSync(CAMINHO_ARQUIVO, "utf-8")
+        const livros = JSON.parse(data)
+
+        const livroEncontrado = livros.find(livro =>
+            livro.titulo.toLocaleLowerCase() === tituloParam
+        )
+
+        if (!livroEncontrado) {
+            return res.status(404).json({
+                message: "livro nao encontrado"
+            })
+        }
+
+        res.status(200).json({
+            message: "livro encontrado",
+            livro: livroEncontrado
+        })
+
+    } catch (error) {
+        console.error("Erro interno no servidor:", error)
+        res.status(500).json({
+            message: "Erro no servidor!"
+        })
     }
 })
 
